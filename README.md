@@ -20,7 +20,7 @@ v
 如果你还有充裕的时间，或者想练习一下刚刚学会的 React 新技能，这里有一些可以改进游戏的想法供你参考，这些功能的实现顺序的难度是递增的：
 
 - [x] 1. 在游戏历史记录列表显示每一步棋的坐标，格式为 (列号, 行号)。
-- [ ] 2. 在历史记录列表中加粗显示当前选择的项目。
+- [x] 2. 在历史记录列表中加粗显示当前选择的项目。
 - [ ] 3. 使用两个循环来渲染出棋盘的格子，而不是在代码里写死（hardcode）。
 - [ ] 4. 添加一个可以升序或降序显示历史记录的按钮。
 - [ ] 5. 每当有人获胜时，高亮显示连成一线的 3 颗棋子。
@@ -86,4 +86,81 @@ const moves = history.map((step, move) => {
     </li>
   );
 });
+```
+
+### 2. 在历史记录列表中加粗显示当前选择的项目。
+
+这个问题主要在于解决 `map` 中的代表在 `history` 中每一步的 `move` 值, 和代表当前第几步的 `stepNumber` 的比较.
+
+1. 字体加粗的方法可以用 `<b></b>` 来实现
+2. 使用 [classnames](https://www.npmjs.com/package/classnames) 来设置样式 (推荐)
+
+#### 用`<b>`
+
+```javascript
+// 使用 <b>
+const moves = history.map((step, move) => {
+  let desc = '';
+  if (!move) {
+    desc = 'Go to game start';
+  } else {
+    if (this.state.stepNumber === move) {
+      desc = (
+        <b>
+          {'Go to move #' +
+            move +
+            '列号:' +
+            (step.position % 3) +
+            '行号:' +
+            Math.floor(step.position / 3)}
+        </b>
+      );
+    } else {
+      desc =
+        'Go to move #' +
+        move +
+        '列号:' +
+        (step.position % 3) +
+        '行号:' +
+        Math.floor(step.position / 3);
+    }
+  }
+  return (
+    <li key={move}>
+      <button onClick={() => this.jumpTo(move)}>{desc}</button>
+    </li>
+  );
+});
+```
+
+#### 用 classnames 这个包来设置样式
+
+先用 `npm i -D classnames` 安装依赖
+
+```javascript
+// classnames
+import * as cl from 'classnames';
+
+// ...
+
+return (
+  <li key={move}>
+    <button
+      className={cl({
+        bold: this.state.stepNumber === move
+      })}
+      onClick={() => this.jumpTo(move)}
+    >
+      {desc}
+    </button>
+  </li>
+);
+```
+
+App.css 文件中加入样式
+
+```css
+.bold {
+  font-weight: bold;
+}
 ```

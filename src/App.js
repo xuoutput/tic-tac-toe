@@ -1,4 +1,5 @@
 import React from 'react';
+import * as cl from 'classnames';
 import logo from './logo.svg';
 import './App.css';
 
@@ -125,7 +126,14 @@ class Game extends React.Component {
         : 'Go to game start';
       return (
         <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          <button
+            className={cl({
+              bold: this.state.stepNumber === move
+            })}
+            onClick={() => this.jumpTo(move)}
+          >
+            {desc}
+          </button>
         </li>
       );
     });

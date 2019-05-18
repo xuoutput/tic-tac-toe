@@ -89,3 +89,7 @@ ol, ul {
 .bold {
   font-weight: bold;
 }
+
+.highlight {
+  color: red;
+}

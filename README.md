@@ -23,7 +23,7 @@ v
 - [x] 2. 在历史记录列表中加粗显示当前选择的项目。
 - [x] 3. 使用两个循环来渲染出棋盘的格子，而不是在代码里写死（hardcode）。
 - [x] 4. 添加一个可以升序或降序显示历史记录的按钮。
-- [ ] 5. 每当有人获胜时，高亮显示连成一线的 3 颗棋子。
+- [x] 5. 每当有人获胜时，高亮显示连成一线的 3 颗棋子。
 - [ ] 6. 当无人获胜时，显示一个平局的消息。
 
 ### 1. 在游戏历史记录列表显示每一步棋的坐标，格式为 (列号, 行号)。
@@ -285,5 +285,90 @@ toggleMovesSort() {
   this.setState({
     movesSort: !this.state.movesSort
   });
+}
+```
+
+### 5. 每当有人获胜时，高亮显示连成一线的 3 颗棋子。
+
+这个也是设置 css, 在 `calculateWinner` 中保存的是 8 种获胜的情况, 只要其中一种符号 `'X'或'O'` 在对应位置上符合 8 种情况中的某一种, 就表示有 **winner** , 然后返回这个获胜的符号.
+
+这里我们可以同时返回获胜时对应的数组 `lines[i]` , 然后根据这组数组来高亮对应的 `square`
+
+```javascript
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2], // 这里是3行
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6], // 这里是3列
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8], // 这里是对角线
+    [2, 4, 6]
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return [squares[a], lines[i]]; // 这里我们就返回一个数组, 第一个表示获胜的符号, 第二个表示获胜是按哪个条件获胜的, 用来高亮highlight
+    }
+  }
+  return [null];
+}
+```
+
+修改代码中对应代码, 使用[数组的解构赋值](http://es6.ruanyifeng.com/?search=import&x=0&y=0#docs/destructuring#%E6%95%B0%E7%BB%84%E7%9A%84%E8%A7%A3%E6%9E%84%E8%B5%8B%E5%80%BC)能够快速获得对应数据
+
+```javascript
+const [winner, lines] = calculateWinner(current.squares);
+```
+
+当然这个 `lines` 最后是要从传到 `Game` 传到 `Board`, 然后再传到 `Square` 的.
+
+我们先从 `Game` 传到 `board`
+
+```javascript
+<Board
+  squares={current.squares}
+  lines={lines} // 直接从赋值解构中传入
+  onClick={i => this.handleClick(i)}
+/>
+```
+
+在 `Board` 组件中我们就可以处理是否高亮了
+
+```javascript
+renderSquare(i) {
+  return (
+    <Square
+      key={i}
+      highlight={this.props.lines && this.props.lines.includes(i)}  // 判断当前 i 是不是在 获胜者的lines中就行
+      value={this.props.squares[i]}
+      onClick={() => this.props.onClick(i)}
+    />
+  );
+}
+```
+
+最后从 `Board` 传到 `Square` 的 `highlight` 属性 来决定 css 高不高亮
+
+```javascript
+function Square(props) {
+  return (
+    <button
+      className={cl({
+        square: true,
+        highlight: props.highlight // 也使用classname来
+      })}
+      onClick={props.onClick}
+    >
+      {props.value}
+    </button>
+  );
+}
+```
+
+```css
+.highlight {
+  color: red;
 }
 ```

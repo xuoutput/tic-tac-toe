@@ -21,7 +21,7 @@ v
 
 - [x] 1. 在游戏历史记录列表显示每一步棋的坐标，格式为 (列号, 行号)。
 - [x] 2. 在历史记录列表中加粗显示当前选择的项目。
-- [ ] 3. 使用两个循环来渲染出棋盘的格子，而不是在代码里写死（hardcode）。
+- [x] 3. 使用两个循环来渲染出棋盘的格子，而不是在代码里写死（hardcode）。
 - [ ] 4. 添加一个可以升序或降序显示历史记录的按钮。
 - [ ] 5. 每当有人获胜时，高亮显示连成一线的 3 颗棋子。
 - [ ] 6. 当无人获胜时，显示一个平局的消息。
@@ -162,5 +162,62 @@ App.css 文件中加入样式
 ```css
 .bold {
   font-weight: bold;
+}
+```
+
+### 3. 使用两个循环来渲染出棋盘的格子，而不是在代码里写死（hardcode）。
+
+这里说的是 `<Board>` 组件中 `render` 使用循环, 说到循环:
+
+- while
+- do...while
+- for
+- forEach
+- for...in
+- for...of
+
+当然还有对 [Array](https://xuoutput.github.io/2019/05/12/javascript-%E6%95%B0%E7%BB%84/) 进行操作的比如:
+
+- every
+- some
+- map
+- filter
+- reduce
+- push
+- pop
+- shift
+- unshift
+
+这里用的是使用数组, [列表 & Key](https://react.docschina.org/docs/lists-and-keys.html) 但不使用 `map`, 因为 `map` 是对数组中的每一个值进行操作.
+
+`key` 记得要在两边都添加, 因为两边都使用了循环.
+
+```javascript
+class Board extends React.Component {
+  renderSquare(i) {
+    return (
+      <Square
+        key={i} // 增加了key
+        value={this.props.squares[i]}
+        onClick={() => this.props.onClick(i)}
+      />
+    );
+  }
+
+  render() {
+    let boardRow = [];
+    for (let i = 0; i < 3; i++) {
+      let square = [];
+      for (let j = 0; j < 3; j++) {
+        square.push(this.renderSquare(3 * i + j));
+      }
+      boardRow.push(
+        <div className='board-row' key={i}>
+          {square}
+        </div>
+      );
+    }
+    return <div>{boardRow}</div>;
+  }
 }
 ```

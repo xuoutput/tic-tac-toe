@@ -22,7 +22,7 @@ v
 - [x] 1. 在游戏历史记录列表显示每一步棋的坐标，格式为 (列号, 行号)。
 - [x] 2. 在历史记录列表中加粗显示当前选择的项目。
 - [x] 3. 使用两个循环来渲染出棋盘的格子，而不是在代码里写死（hardcode）。
-- [ ] 4. 添加一个可以升序或降序显示历史记录的按钮。
+- [x] 4. 添加一个可以升序或降序显示历史记录的按钮。
 - [ ] 5. 每当有人获胜时，高亮显示连成一线的 3 颗棋子。
 - [ ] 6. 当无人获胜时，显示一个平局的消息。
 
@@ -219,5 +219,71 @@ class Board extends React.Component {
     }
     return <div>{boardRow}</div>;
   }
+}
+```
+
+### 4. 添加一个可以升序或降序显示历史记录的按钮。
+
+这次要做的功能考虑的方面有点多.
+
+要显示倒叙, 就是对 `moves` 进行处理, 即 对 `history.map()` 处理, 这里 `map` 并没有升降序的功能, 所以只能对 `history` 进行处理.
+
+对数组进行升降序有 `reverse()` 方法可以使用.
+
+1. 增加一个 `this.state.movesSort` 用来切换升降序.
+2. 设置一个新的变量 `movesHistory` 是对 `history` 的一个副本, 用这个来进行 `reverse`, 因为原来的 `history` 还是用来判断 winner 的.
+3. 历史记录的 `desc` 在默认升序下不需要改动, 在进行 `toggle` 降序后, 则需要对列表进行切换, `'Go to move #'` 的数字也要降序
+4. 点击按钮回到历史中, 以及选中的当前项目加粗同样需要重新计算
+
+关键代码
+
+```javascript
+// state中增加
+movesSort: false    // 排序
+
+// render中
+const history = this.state.history;
+const current = history[this.state.stepNumber];
+const winner = calculateWinner(current.squares);
+
+const movesHistory = history.slice();
+if (!this.state.movesSort) {
+  // movesHistory不变
+} else {
+  movesHistory.reverse();
+}
+
+const moves = movesHistory.map((step, move) => {
+  const targetStep = !this.state.movesSort
+    ? move
+    : movesHistory.length - move - 1;
+  const desc = targetStep
+    ? 'Go to move #' +
+      targetStep +
+      '列号:' +
+      (step.position % 3) +
+      '行号:' +
+      Math.floor(step.position / 3)
+    : 'Go to game start';
+  return (
+    <li key={move}>
+      <button
+        className={cl({
+          bold: this.state.stepNumber === targetStep
+        })}
+        onClick={() => this.jumpTo(targetStep)}
+      >
+        {desc}
+      </button>
+    </li>
+  );
+});
+
+
+// toggle方法
+toggleMovesSort() {
+  this.setState({
+    movesSort: !this.state.movesSort
+  });
 }
 ```

@@ -74,7 +74,8 @@ class Game extends React.Component {
         }
       ],
       stepNumber: 0,
-      xIsNext: true
+      xIsNext: true,
+      movesSort: false
     };
   }
 
@@ -105,15 +106,31 @@ class Game extends React.Component {
     });
   }
 
+  toggleMovesSort() {
+    this.setState({
+      movesSort: !this.state.movesSort
+    });
+  }
+
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
-    const moves = history.map((step, move) => {
-      const desc = move
+    const movesHistory = history.slice();
+    if (!this.state.movesSort) {
+      // movesHistory不变
+    } else {
+      movesHistory.reverse();
+    }
+
+    const moves = movesHistory.map((step, move) => {
+      const targetStep = !this.state.movesSort
+        ? move
+        : movesHistory.length - move - 1;
+      const desc = targetStep
         ? 'Go to move #' +
-          move +
+          targetStep +
           '列号:' +
           (step.position % 3) +
           '行号:' +
@@ -123,9 +140,9 @@ class Game extends React.Component {
         <li key={move}>
           <button
             className={cl({
-              bold: this.state.stepNumber === move
+              bold: this.state.stepNumber === targetStep
             })}
-            onClick={() => this.jumpTo(move)}
+            onClick={() => this.jumpTo(targetStep)}
           >
             {desc}
           </button>
@@ -147,6 +164,13 @@ class Game extends React.Component {
         </div>
         <div className='game-info'>
           <div>{status}</div>
+          <button onClick={() => this.toggleMovesSort()}>
+            {`${
+              !this.state.movesSort
+                ? 'sort moves: ascend'
+                : 'sort moves: descend'
+            }`}
+          </button>
           <ol>{moves}</ol>
         </div>
       </div>

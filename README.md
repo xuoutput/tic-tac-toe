@@ -24,7 +24,7 @@ v
 - [x] 3. 使用两个循环来渲染出棋盘的格子，而不是在代码里写死（hardcode）。
 - [x] 4. 添加一个可以升序或降序显示历史记录的按钮。
 - [x] 5. 每当有人获胜时，高亮显示连成一线的 3 颗棋子。
-- [ ] 6. 当无人获胜时，显示一个平局的消息。
+- [x] 6. 当无人获胜时，显示一个平局的消息。
 
 ### 1. 在游戏历史记录列表显示每一步棋的坐标，格式为 (列号, 行号)。
 
@@ -370,5 +370,20 @@ function Square(props) {
 ```css
 .highlight {
   color: red;
+}
+```
+
+### 6. 当无人获胜时，显示一个平局的消息。
+
+判断下 `history` 的长度到没到最大, 然后和 `winner` 字段结合判断
+
+```javascript
+let status;
+if (winner) {
+  status = 'Winner: ' + winner;
+} else if (!winner && history.length === 10) {
+  status = 'No Winner';
+} else {
+  status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
 }
 ```
